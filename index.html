@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Voice Controlled Website</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  nav a { margin-right: 10px; cursor:pointer; }
+  section { display: none; margin-top: 20px; }
+  section.active { display: block; }
+</style>
+</head>
+<body>
+<h1>Voice Controlled Website</h1>
+<p>Click "Start Listening" and speak one of the commands to navigate: Home, About, Blog, Info, Fun, Games, Speach.</p>
+<button id="listenButton" onclick="toggleListening()">Start Listening</button>
+<div id="status"></div>
+<nav>
+  <a onclick="showSection('home')">Home</a>
+  <a onclick="showSection('about')">About</a>
+  <a onclick="showSection('blog')">Blog</a>
+  <a onclick="showSection('info')">Info</a>
+  <a onclick="showSection('fun')">Fun</a>
+  <a onclick="showSection('games')">Games</a>
+  <a onclick="showSection('speach')">Speach</a>
+</nav>
+<section id="home" class="active"><h2>Home</h2><p>Welcome home.</p></section>
+<section id="about"><h2>About</h2><p>About section.</p></section>
+<section id="blog"><h2>Blog</h2><p>Blog posts.</p></section>
+<section id="info"><h2>Info</h2><p>Information.</p></section>
+<section id="fun"><h2>Fun</h2><p>Fun section.</p></section>
+<section id="games"><h2>Games</h2><p>Games section.</p></section>
+<section id="speach"><h2>Speach</h2><p>Speech page.</p></section>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.9.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0"></script>
+<script>
+const URL = "VoiceModel/";
+let recognizer;
+async function init(){
+  recognizer = speechCommands.create('BROWSER_FFT', undefined, URL + 'model.json', URL + 'metadata.json');
+  await recognizer.ensureModelLoaded();
+}
+async function toggleListening(){
+  if(!recognizer){ await init(); }
+  if(recognizer.isListening()){
+    recognizer.stopListening();
+    document.getElementById('listenButton').textContent = 'Start Listening';
+  } else {
+    recognizer.listen(result => {
+      const scores = result.scores;
+      const labels = recognizer.wordLabels();
+      let top = {label:'',score:0};
+      for(let i=0;i<scores.length;i++){
+        if(scores[i] > top.score){ top = {label: labels[i], score: scores[i]}; }
+      }
+      if(top.score > 0.75){
+        document.getElementById('status').textContent = 'Command: ' + top.label;
+        showSection(top.label.toLowerCase());
+      }
+    }, {probabilityThreshold: 0.75});
+    document.getElementById('listenButton').textContent = 'Stop Listening';
+  }
+}
+function showSection(id){
+  document.querySelectorAll('section').forEach(s => {
+    s.classList.toggle('active', s.id === id);
+  });
+}
+</script>
+</body>
+</html>
