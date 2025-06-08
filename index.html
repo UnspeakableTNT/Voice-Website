@@ -103,10 +103,17 @@ async function startListening(){
     await navigator.mediaDevices.getUserMedia({audio:true});
   }catch(e){
     status.textContent = 'Microphone access denied';
+    console.error(e);
     return;
   }
   status.textContent = 'Loading model...';
-  if(!recognizer){ await init(); }
+  try{
+    if(!recognizer){ await init(); }
+  }catch(e){
+    status.textContent = 'Failed to load model';
+    console.error(e);
+    return;
+  }
   if(!recognizer.isListening()){
     status.textContent = 'Listening for commands...';
     recognizer.listen(result => {
@@ -132,3 +139,4 @@ function showSection(id){
 </script>
 </body>
 </html>
+
