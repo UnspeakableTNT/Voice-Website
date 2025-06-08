@@ -4,16 +4,51 @@
 <meta charset="UTF-8">
 <title>Voice Controlled Website</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 20px; }
-  nav a { margin-right: 10px; cursor:pointer; }
-  section { display: none; margin-top: 20px; }
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f6f9fc;
+    color: #333;
+  }
+  header {
+    background: linear-gradient(45deg, #0066ff, #66ccff);
+    color: #fff;
+    padding: 40px 0;
+    text-align: center;
+  }
+  nav {
+    background: #333;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px 0;
+  }
+  nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  nav a:hover { text-decoration: underline; }
+  section {
+    display: none;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
   section.active { display: block; }
+  #status {
+    text-align: center;
+    margin: 15px 0;
+    font-style: italic;
+  }
 </style>
 </head>
 <body>
-<h1>Voice Controlled Website</h1>
-<p>Speak a command to navigate: Home, About, Blog, Info, Fun, Games, Speach.</p>
-<div id="status"></div>
+<header>
+  <h1>Voice Controlled Demo</h1>
+  <p>Say a command like "Home", "About", "Blog", "Info", "Fun", "Games" or "Speach".</p>
+</header>
 <nav>
   <a onclick="showSection('home')">Home</a>
   <a onclick="showSection('about')">About</a>
@@ -23,13 +58,35 @@
   <a onclick="showSection('games')">Games</a>
   <a onclick="showSection('speach')">Speach</a>
 </nav>
-<section id="home" class="active"><h2>Home</h2><p>Welcome home.</p></section>
-<section id="about"><h2>About</h2><p>About section.</p></section>
-<section id="blog"><h2>Blog</h2><p>Blog posts.</p></section>
-<section id="info"><h2>Info</h2><p>Information.</p></section>
-<section id="fun"><h2>Fun</h2><p>Fun section.</p></section>
-<section id="games"><h2>Games</h2><p>Games section.</p></section>
-<section id="speach"><h2>Speach</h2><p>Speech page.</p></section>
+<div id="status">Awaiting microphone access...</div>
+<section id="home" class="active">
+  <h2>Home</h2>
+  <p>Welcome to the voice-controlled demo website.</p>
+</section>
+<section id="about">
+  <h2>About</h2>
+  <p>This site uses a TensorFlow.js model to recognize a few simple spoken words and navigate between sections automatically.</p>
+</section>
+<section id="blog">
+  <h2>Blog</h2>
+  <p>Latest posts will appear here.</p>
+</section>
+<section id="info">
+  <h2>Info</h2>
+  <p>Some information about the project.</p>
+</section>
+<section id="fun">
+  <h2>Fun</h2>
+  <p>Fun things go here.</p>
+</section>
+<section id="games">
+  <h2>Games</h2>
+  <p>Play some games!</p>
+</section>
+<section id="speach">
+  <h2>Speach</h2>
+  <p>A demonstration of voice recognition.</p>
+</section>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.9.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0"></script>
 <script>
@@ -40,6 +97,12 @@ async function init(){
   await recognizer.ensureModelLoaded();
 }
 async function startListening(){
+  try{
+    await navigator.mediaDevices.getUserMedia({audio:true});
+  }catch(e){
+    document.getElementById('status').textContent = 'Microphone access denied';
+    return;
+  }
   if(!recognizer){ await init(); }
   if(!recognizer.isListening()){
     recognizer.listen(result => {
@@ -50,7 +113,7 @@ async function startListening(){
         if(scores[i] > top.score){ top = {label: labels[i], score: scores[i]}; }
       }
       if(top.label && top.label !== 'Background Noise'){
-        document.getElementById('status').textContent = 'Command: ' + top.label;
+        document.getElementById('status').textContent = 'Heard: ' + top.label;
         showSection(top.label.toLowerCase());
       }
     }, {probabilityThreshold: 0});
@@ -64,3 +127,4 @@ function showSection(id){
 }
 </script>
 </body>
+</html>
