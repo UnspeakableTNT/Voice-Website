@@ -40,6 +40,12 @@ async function init(){
   await recognizer.ensureModelLoaded();
 }
 async function startListening(){
+  try{
+    await navigator.mediaDevices.getUserMedia({audio:true});
+  }catch(e){
+    document.getElementById('status').textContent = 'Microphone access denied';
+    return;
+  }
   if(!recognizer){ await init(); }
   if(!recognizer.isListening()){
     recognizer.listen(result => {
