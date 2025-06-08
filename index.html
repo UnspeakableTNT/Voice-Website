@@ -132,8 +132,7 @@ async function startListening(){
           awaitingSection = true;
           status.textContent = 'Heard: open - say a section';
         } else {
-          status.textContent = 'Heard: ' + lower;
-          showSection(lower);
+          status.textContent = 'Heard: ' + lower + ' (say "open" first)';
         }
       }
     }, {probabilityThreshold: 0});
