@@ -47,7 +47,7 @@
 <body>
 <header>
   <h1>Voice Controlled Demo</h1>
-  <p>Say a command like "BETENGAN", "About", "Blog", "Info", "Fun", "Games" or "Speach".</p>
+  <p>Say a command like "Home", "About", "Blog", "Info", "Fun", "Games" or "Speach".</p>
 </header>
 <nav>
   <a onclick="showSection('home')">Home</a>
@@ -97,14 +97,18 @@ async function init(){
   await recognizer.ensureModelLoaded();
 }
 async function startListening(){
+  const status = document.getElementById('status');
+  status.textContent = 'Requesting microphone...';
   try{
     await navigator.mediaDevices.getUserMedia({audio:true});
   }catch(e){
-    document.getElementById('status').textContent = 'Microphone access denied';
+    status.textContent = 'Microphone access denied';
     return;
   }
+  status.textContent = 'Loading model...';
   if(!recognizer){ await init(); }
   if(!recognizer.isListening()){
+    status.textContent = 'Listening for commands...';
     recognizer.listen(result => {
       const scores = result.scores;
       const labels = recognizer.wordLabels();
@@ -113,7 +117,7 @@ async function startListening(){
         if(scores[i] > top.score){ top = {label: labels[i], score: scores[i]}; }
       }
       if(top.label && top.label !== 'Background Noise'){
-        document.getElementById('status').textContent = 'Heard: ' + top.label;
+        status.textContent = 'Heard: ' + top.label;
         showSection(top.label.toLowerCase());
       }
     }, {probabilityThreshold: 0});
