@@ -12,8 +12,7 @@
 </head>
 <body>
 <h1>Voice Controlled Website</h1>
-<p>Click "Start Listening" and speak one of the commands to navigate: Home, About, Blog, Info, Fun, Games, Speach.</p>
-<button id="listenButton" onclick="toggleListening()">Start Listening</button>
+<p>Speak a command to navigate: Home, About, Blog, Info, Fun, Games, Speach.</p>
 <div id="status"></div>
 <nav>
   <a onclick="showSection('home')">Home</a>
@@ -40,12 +39,9 @@ async function init(){
   recognizer = speechCommands.create('BROWSER_FFT', undefined, URL + 'model.json', URL + 'metadata.json');
   await recognizer.ensureModelLoaded();
 }
-async function toggleListening(){
+async function startListening(){
   if(!recognizer){ await init(); }
-  if(recognizer.isListening()){
-    recognizer.stopListening();
-    document.getElementById('listenButton').textContent = 'Start Listening';
-  } else {
+  if(!recognizer.isListening()){
     recognizer.listen(result => {
       const scores = result.scores;
       const labels = recognizer.wordLabels();
@@ -53,14 +49,14 @@ async function toggleListening(){
       for(let i=0;i<scores.length;i++){
         if(scores[i] > top.score){ top = {label: labels[i], score: scores[i]}; }
       }
-      if(top.score > 0.75){
+      if(top.label && top.label !== 'Background Noise'){
         document.getElementById('status').textContent = 'Command: ' + top.label;
         showSection(top.label.toLowerCase());
       }
-    }, {probabilityThreshold: 0.75});
-    document.getElementById('listenButton').textContent = 'Stop Listening';
+    }, {probabilityThreshold: 0});
   }
 }
+window.addEventListener('load', startListening);
 function showSection(id){
   document.querySelectorAll('section').forEach(s => {
     s.classList.toggle('active', s.id === id);
