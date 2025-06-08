@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -47,7 +47,7 @@
 <body>
 <header>
   <h1>Voice Controlled Demo</h1>
-  <p>Say a command like "BTEN", "About", "Blog", "Info", "Fun", "Games" or "Speach".</p>
+  <p>Say a command like "Home", "About", "Blog", "Info", "Fun", "Games" or "Speach".</p>
 </header>
 <nav>
   <a onclick="showSection('home')">Home</a>
@@ -90,10 +90,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.9.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.0"></script>
 <script>
-const URL = "VoiceModel/";
+const MODEL_URL = new URL('VoiceModel/', document.baseURI).href;
 let recognizer;
 async function init(){
-  recognizer = speechCommands.create('BROWSER_FFT', undefined, URL + 'model.json', URL + 'metadata.json');
+  recognizer = speechCommands.create('BROWSER_FFT', undefined, MODEL_URL + 'model.json', MODEL_URL + 'metadata.json');
   await recognizer.ensureModelLoaded();
 }
 async function startListening(){
@@ -110,7 +110,7 @@ async function startListening(){
   try{
     if(!recognizer){ await init(); }
   }catch(e){
-    status.textContent = 'Failed to load model';
+    status.textContent = 'Failed to load model. Serve this page over http(s) and keep the VoiceModel folder next to index.html.';
     console.error(e);
     return;
   }
@@ -139,4 +139,3 @@ function showSection(id){
 </script>
 </body>
 </html>
-
